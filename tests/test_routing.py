@@ -9,8 +9,10 @@ from httpx import AsyncClient
 import websockets
 
 # --- CONFIGURAÇÕES ---
-BASE_URL = "http://localhost:8080"
-WS_URL = "ws://localhost:8080/ws"
+import os
+
+BASE_URL = os.getenv("GATEWAY_URL", "http://localhost:8080")
+WS_URL = os.getenv("WS_URL", "ws://localhost:8080/ws")
 AUTH_URL = f"{BASE_URL}/auth"
 
 EVENT_TIMEOUT = 5.0

@@ -27,7 +27,7 @@ help: ## Mostra este menu de ajuda
 	@echo "----------------------------------------------------------------------"
 
 # ==============================================================================
-#  GRPC & PROTOBUF (A Mágica da Automação)
+#  GRPC & PROTOBUF
 # ==============================================================================
 
 .PHONY: install
@@ -37,9 +37,15 @@ install: ## Instala dependências do projeto usando Poetry
 	@echo "✅ Instalação concluída."
 
 .PHONY: test
-test: ## Executa os testes automatizados
-	@echo "🧪 Rodando testes..."
-	@poetry run pytest -v
+test: ## Executa os testes automatizados via Docker
+	@echo "🧪 Rodando testes via Docker..."
+	@$(DOCKER_CMD) build -t chat4all-tests -f tests/Dockerfile.test .
+	@$(DOCKER_CMD) run --rm \
+		--network local_net \
+		-e GATEWAY_URL=http://gateway:80 \
+		-e WS_URL=ws://gateway:80/ws \
+		-e S3_TEST_URL=http://minio:9000 \
+		chat4all-tests -v
 
 .PHONY: proto
 proto: clean-proto ## Compila os arquivos .proto via Docker (com correção de imports)

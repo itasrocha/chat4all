@@ -8,9 +8,13 @@ from httpx import AsyncClient
 import websockets
 
 # --- CONFIGURAÇÕES DE AMBIENTE ---
-BASE_URL = "http://localhost:8080"
+import os
+
+BASE_URL = os.getenv("GATEWAY_URL", "http://localhost:8080")
 API_URL = f"{BASE_URL}"          # API Service
-WS_URL = "ws://localhost:8080/ws"   # Realtime Service
+# Para o WebSocket, se estiver dentro do docker, o host pode ser diferente
+# Se usarmos o gateway (nginx), ele encaminha /ws para o socket-gateway
+WS_URL = os.getenv("WS_URL", "ws://localhost:8080/ws")
 AUTH_URL = f"{BASE_URL}/auth"       # Auth Service
 
 # Timeout para esperar eventos assíncronos (Kafka -> Redis)
@@ -179,7 +183,10 @@ async def test_file_upload_flow(api_client, conversation_ctx, alice):
     data = resp.json()
     
     # 2. Upload para MinIO
-    upload_url = data['upload_url'].replace("minio:9000", "localhost:9000")
+    # Se estiver rodando fora do docker, minio:9000 -> localhost:9000
+    # Se estiver rodando dentro do docker, minio:9000 funciona diretamente
+    s3_test_url = os.getenv("S3_TEST_URL", "http://localhost:9000")
+    upload_url = data['upload_url'].replace("http://minio:9000", s3_test_url)
     files = {'file': (filename, file_content)}
     
     async with AsyncClient() as uploader:
