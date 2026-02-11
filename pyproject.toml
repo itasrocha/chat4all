@@ -1,0 +1,71 @@
+[project]
+name = "chat4all"
+version = "0.1.0"
+description = "Distributed Chat System"
+authors = [
+    {name = "Liddel"}
+]
+readme = "README.md"
+requires-python = "^3.11"
+dependencies = [
+    "pydantic (>=2.0)",
+    "python-dotenv (>=1.2.1,<2.0.0)",
+    "kafka-python (>=2.3.0,<3.0.0)",
+    "aiokafka (>=0.13.0,<0.14.0)",
+    "fastapi (>=0.128.7,<0.129.0)",
+    "grpcio (>=1.78.0,<2.0.0)",
+    "grpcio-tools (>=1.78.0,<2.0.0)",
+    "prometheus-client (>=0.24.1,<0.25.0)",
+    "prometheus-fastapi-instrumentator (>=7.1.0,<8.0.0)",
+    "python-jose[cryptography] (>=3.5.0,<4.0.0)",
+    "passlib[bcrypt] (>=1.7.4,<2.0.0)",
+    "cassandra-driver (>=3.25.0)"
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.api-service.dependencies]
+boto3 = "*"
+botocore = "*"
+bcrypt = "4.0.1"
+uvicorn = {extras = ["standard"], version = "*"}
+
+[tool.poetry.group.auth-service.dependencies]
+sqlalchemy = "*"
+psycopg2-binary = "*"
+python-multipart = "*"
+pydantic = {extras = ["email"], version = ">=2.0"}
+bcrypt = "4.0.1"
+uvicorn = {extras = ["standard"], version = "*"}
+
+[tool.poetry.group.fanout-service.dependencies]
+psycopg2-binary = "*"
+
+[tool.poetry.group.status-service.dependencies]
+redis = ">=4.5.0"
+
+[tool.poetry.group.delivery-worker.dependencies]
+redis = ">=5.0.1"
+
+[tool.poetry.group.socket-gateway.dependencies]
+websockets = "*"
+redis = ">=5.0.1"
+uvicorn = {extras = ["standard"], version = "*"}
+
+[tool.poetry.group.notification-service.dependencies]
+
+[tool.poetry.group.ingestion-service.dependencies]
+
+[tool.poetry.group.metadata-service.dependencies]
+psycopg2-binary = "*"
+
+[tool.poetry.group.connector-mock.dependencies]
+uvicorn = {extras = ["standard"], version = "*"}
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio = "^0.23.0"
+httpx = "^0.27.0"
+websockets = "^12.0"

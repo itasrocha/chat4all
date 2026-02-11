@@ -1,0 +1,50 @@
+# infra/local/monitoring/prometheus.yml
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+    metric_relabel_configs:
+      - source_labels: [container_label_com_docker_compose_service]
+        target_label: app_name
+        regex: (.+)
+      - source_labels: [app_name]
+        regex: ""
+        action: drop
+
+  - job_name: "api-service"
+    static_configs:
+      - targets: ["api-service:8000"]
+    metric_relabel_configs:
+      - source_labels: [job]
+        target_label: app_name
+
+  - job_name: "auth-service"
+    static_configs:
+      - targets: ["auth-service:8000"]
+    metric_relabel_configs:
+      - source_labels: [job]
+        target_label: app_name
+
+  - job_name: "realtime-service"
+    static_configs:
+      - targets: ["realtime-service:8000"]
+    metric_relabel_configs:
+      - source_labels: [job]
+        target_label: app_name
+
+  - job_name: "ingestion-service"
+    static_configs:
+      - targets: ["ingestion-service:8000"]
+    metric_relabel_configs:
+      - source_labels: [job]
+        target_label: app_name
+
+  - job_name: "fanout-service"
+    static_configs:
+      - targets: ["fanout-service:8000"]
+    metric_relabel_configs:
+      - source_labels: [job]
+        target_label: app_name

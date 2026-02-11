@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package events;
+
+// Espelho do MessageSentEvent
+message MessageSentEventProto {
+  string message_id = 1;
+  string conversation_id = 2;
+  string sender_id = 3;
+  string timestamp = 4;
+  string message_type = 5;
+  string content = 6;
+  string attachments_json = 7; // Dict serializado como string
+  string status = 8;
+  int64 sequence_number = 9; // int do Python vira int64
+  string metadata_json = 10; // Dict serializado como string
+  repeated string target_channels = 11; // Lista ["whatsapp", "instagram"] ou ["all"]
+}
+
+// Espelho do DeliveryJobEvent
+message DeliveryJobEventProto {
+  string job_id = 1;
+  string message_id = 2;
+  string conversation_id = 3;
+  string recipient_id = 4;
+  string channel = 5;
+  MessageSentEventProto payload = 6; // Aninhamento de mensagens
+}
+
+// Espelho do MessageStatusEvent
+message MessageStatusEventProto {
+  string event_id = 1;
+  string message_id = 2;
+  int64 sequence_number = 3;
+  string conversation_id = 4;
+  string user_id = 5;
+  string sender_id = 6;
+  string status = 7;
+  string timestamp = 8;
+  string channel = 9;
+}
+
+// Espelho do PushNotificationEvent
+message PushNotificationEventProto {
+  string notification_id = 1;
+  string user_id = 2;
+  string title = 3;
+  string body = 4;
+  string data_json = 5; // Dict -> String
+  string timestamp = 6;
+}
+
+// Espelho do UserCreatedEvent
+message UserCreatedEventProto {
+  string event_id = 1;
+  string user_id = 2;
+  string username = 3;
+  string email = 4;
+  string name = 5;
+  string timestamp = 6;
+}

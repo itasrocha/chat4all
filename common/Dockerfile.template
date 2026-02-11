@@ -1,0 +1,56 @@
+# common/Dockerfile.template
+ARG SERVICE_NAME=dummy
+ARG SERVICE_PORT=8000
+
+FROM python:3.11-slim
+
+ARG SERVICE_NAME
+ARG SERVICE_PORT
+
+# 1. Configurações de Ambiente
+# PYTHONPATH=/app permite importar 'src.main' e 'common.database'
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    POETRY_VERSION=2.0.1 \
+    POETRY_HOME="/opt/poetry" \
+    POETRY_VIRTUALENVS_CREATE=false
+
+# Adiciona poetry ao PATH
+ENV PATH="$POETRY_HOME/bin:$PATH"
+
+WORKDIR /app
+
+# --- CAMADA DE DEPENDÊNCIAS (Otimizada para Cache) ---
+
+# Instalação do Poetry
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && curl -sSL https://install.python-poetry.org | python3 - \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia arquivos de definição de dependências
+COPY pyproject.toml poetry.lock /app/
+
+# Instala dependências
+# --only main: instala dependências comuns
+# --only ${SERVICE_NAME}: instala dependências específicas do grupo do serviço (se houver)
+# --no-root: não instala o projeto atual como pacote (pois não é estruturado assim ainda)
+RUN poetry install --no-interaction --no-ansi --only main,${SERVICE_NAME} --no-root
+
+# --- CAMADA DE CÓDIGO ---
+
+# 2. Copia a Lib Compartilhada
+# Resultado: /app/common/...
+COPY common/ /app/common/
+
+# 3. Copia o Código do Serviço
+# Resultado: /app/src/...
+COPY services/${SERVICE_NAME}/src/ /app/src/
+
+# 4. Exposição e Runtime
+EXPOSE ${SERVICE_PORT}
+
+# O comando real é definido no docker-compose (ex: python -m src.main)
+CMD ["echo", "❌ Erro: Comando de inicialização não definido no docker-compose!"]

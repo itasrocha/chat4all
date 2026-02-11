@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package chat4all.v1;
+
+service MetadataService {
+    // Cria uma conversa (privada ou grupo) com membros iniciais
+    rpc CreateConversation (CreateConversationRequest) returns (CreateConversationResponse);
+
+    // Obtém o próximo número de sequência (Atomic Increment)
+    rpc GetNextSequenceNumber (GetNextSequenceNumberRequest) returns (GetNextSequenceNumberResponse);
+
+    // Retorna os membros de uma conversa (usado pelo Dispatcher para Fan-out)
+    rpc GetConversationMembers (GetConversationMembersRequest) returns (GetConversationMembersResponse);
+
+    rpc ListUsers (ListUsersRequest) returns (ListUsersResponse);
+    
+    rpc GetUserProfile (GetUserProfileRequest) returns (UserProfile);
+
+    rpc GetUserIdentities (GetUserIdentitiesRequest) returns (GetUserIdentitiesResponse);
+
+    rpc AddUserIdentity (AddUserIdentityRequest) returns (AddUserIdentityResponse);
+
+    rpc GetUserConversations (GetUserConversationsRequest) returns (GetUserConversationsResponse);
+
+}
+
+message CreateConversationRequest {
+    string type = 1; // "private" ou "group"
+    repeated string member_ids = 2; // Lista de IDs dos participantes
+    map<string, string> metadata = 3; // Ex: {"title": "Grupo da Família"}
+}
+
+message CreateConversationResponse {
+    string conversation_id = 1;
+}
+
+message GetNextSequenceNumberRequest {
+    string conversation_id = 1;
+    string message_id = 2;
+}
+
+message GetNextSequenceNumberResponse {
+    int64 sequence_number = 1;
+}
+
+message GetConversationMembersRequest {
+    string conversation_id = 1;
+}
+
+message GetConversationMembersResponse {
+    repeated string member_ids = 1;
+}
+
+message ListUsersRequest {
+    int32 limit = 1;
+    int32 offset = 2;
+}
+
+message UserProfile {
+    string user_id = 1;
+    string name = 2;
+    string username = 3;
+    string avatar_url = 4;
+}
+
+message ListUsersResponse {
+    repeated UserProfile users = 1;
+}
+
+message GetUserProfileRequest {
+    string user_id = 1;
+}
+
+message GetUserIdentitiesRequest {
+    string user_id = 1;
+}
+
+message UserIdentity {
+    string channel = 1;
+    string external_id = 2;
+}
+
+message GetUserIdentitiesResponse {
+    repeated UserIdentity identities = 1;
+}
+
+message AddUserIdentityRequest {
+    string user_id = 1;
+    string channel = 2;     // ex: "whatsapp"
+    string external_id = 3; // ex: "551199999999"
+}
+
+message AddUserIdentityResponse {
+    bool success = 1;
+}
+
+message GetUserConversationsRequest {
+    string user_id = 1;
+}
+
+message ConversationSummaryProto {
+    string conversation_id = 1;
+    string type = 2;              // 'private' ou 'group'
+    string metadata_json = 3;     // Metadados (nome do grupo) serializados como string
+    int64 last_sequence_number = 4;
+}
+
+message GetUserConversationsResponse {
+    repeated ConversationSummaryProto conversations = 1;
+}
